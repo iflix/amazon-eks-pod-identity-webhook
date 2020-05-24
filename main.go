@@ -62,6 +62,7 @@ func main() {
 	mountPath := flag.String("token-mount-path", "/var/run/secrets/eks.amazonaws.com/serviceaccount", "The path to mount tokens")
 	tokenExpiration := flag.Int64("token-expiration", 86400, "The token expiration")
 	region := flag.String("aws-default-region", "", "If set, AWS_DEFAULT_REGION and AWS_REGION will be set to this value in mutated containers")
+	arnPrefix := flag.String( "role-arn-prefix", "", "If set, the role ARN from the Service Account annotation will be prefixed with this value")
 
 	version := flag.Bool("version", false, "Display the version and exit")
 
@@ -105,6 +106,7 @@ func main() {
 		handler.WithMountPath(*mountPath),
 		handler.WithServiceAccountCache(saCache),
 		handler.WithRegion(*region),
+		handler.WithArnPrefix(*arnPrefix),
 	)
 
 	addr := fmt.Sprintf(":%d", *port)

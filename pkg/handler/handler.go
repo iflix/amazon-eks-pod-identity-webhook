@@ -69,6 +69,11 @@ func WithRegion(region string) ModifierOpt {
 	return func(m *Modifier) { m.Region = region }
 }
 
+// WithArnPrefix sets the modifier ARN prefix
+func WithArnPrefix(arnprefix string) ModifierOpt {
+	return func(m *Modifier) { m.ArnPrefix = arnprefix}
+}
+
 // NewModifier returns a Modifier with default values
 func NewModifier(opts ...ModifierOpt) *Modifier {
 
@@ -90,6 +95,7 @@ type Modifier struct {
 	Expiration int64
 	MountPath  string
 	Region     string
+	ArnPrefix  string
 	Cache      cache.ServiceAccountCache
 	volName    string
 	tokenName  string
@@ -101,7 +107,7 @@ type patchOperation struct {
 	Value interface{} `json:"value,omitempty"`
 }
 
-func addEnvToContainer(container *corev1.Container, mountPath, tokenFilePath, volName, roleName, region string) {
+func addEnvToContainer(container *corev1.Container, mountPath, tokenFilePath, volName, roleName, region string, arnPrefix string) {
 	var skipReservedKeys, skipRegionKey bool
 	reservedKeys := map[string]string{
 		"AWS_ROLE_ARN":                "",
@@ -151,9 +157,13 @@ func addEnvToContainer(container *corev1.Container, mountPath, tokenFilePath, vo
 	}
 
 	if !skipReservedKeys {
+		finalRoleName := roleName
+		if arnPrefix != "" {
+			finalRoleName = arnPrefix + roleName
+		}
 		env = append(env, corev1.EnvVar{
 			Name:  "AWS_ROLE_ARN",
-			Value: roleName,
+			Value: finalRoleName,
 		})
 
 		env = append(env, corev1.EnvVar{
@@ -195,13 +205,13 @@ func (m *Modifier) updatePodSpec(pod *corev1.Pod, roleName, audience string) []p
 	var initContainers = []corev1.Container{}
 	for i := range pod.Spec.InitContainers {
 		container := pod.Spec.InitContainers[i]
-		addEnvToContainer(&container, m.MountPath, tokenFilePath, m.volName, roleName, m.Region)
+		addEnvToContainer(&container, m.MountPath, tokenFilePath, m.volName, roleName, m.Region, m.ArnPrefix)
 		initContainers = append(initContainers, container)
 	}
 	var containers = []corev1.Container{}
 	for i := range pod.Spec.Containers {
 		container := pod.Spec.Containers[i]
-		addEnvToContainer(&container, m.MountPath, tokenFilePath, m.volName, roleName, m.Region)
+		addEnvToContainer(&container, m.MountPath, tokenFilePath, m.volName, roleName, m.Region, m.ArnPrefix)
 		containers = append(containers, container)
 	}
 
