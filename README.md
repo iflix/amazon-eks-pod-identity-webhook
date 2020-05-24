@@ -141,6 +141,10 @@ Usage of amazon-eks-pod-identity-webhook:
 
 When the `aws-default-region` flag is set this webhook will inject `AWS_DEFAULT_REGION` and `AWS_REGION` in mutated containers if `AWS_DEFAULT_REGION` and `AWS_REGION` are not already set.
 
+### Role ARN Prefixing
+
+The `--role-arn-prefix` flag can be used to configure a static value that will be prefixed to the injected role ARN.
+This mimics the hystorical behaviour of tools like `kube2iam` and `kiam`
 
 ## Installation
 
