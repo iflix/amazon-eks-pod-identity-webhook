@@ -121,6 +121,7 @@ Usage of amazon-eks-pod-identity-webhook:
       --logtostderr                      log to standard error instead of files (default true)
       --namespace string                 (in-cluster) The namespace name this webhook and the tls secret resides in (default "eks")
       --port int                         Port to listen on (default 443)
+      --role-arn-prefix string           If set, the role ARN from the Service Account annotation will be prefixed with this value
       --service-name string              (in-cluster) The service name fronting this webhook (default "pod-identity-webhook")
       --skip_headers                     If true, avoid header prefixes in the log messages
       --skip_log_headers                 If true, avoid headers when openning log files
